@@ -64,7 +64,6 @@ class PWebBismillah(object):
         self._pweb_app.run(host=self._config.HOST, port=self._config.PORT, load_dotenv=False, debug=self._config.DEBUG)
 
     def get_app(self):
-        self._pweb_app.config["IS_WSGI_SRV"] = True
         return self._pweb_app
 
     def cli(self):
