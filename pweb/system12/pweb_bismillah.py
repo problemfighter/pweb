@@ -140,5 +140,5 @@ class PWebBismillah(object):
 
     def static_resource_endpoint(self, path):
         response = make_response(send_from_directory(self._config.UPLOADED_STATIC_RESOURCES, path))
-        response.headers['Access-Control-Allow-Origin'] = self._config.ALLOW_ACCESS_CONTROL_ORIGIN
+        response.headers['Access-Control-Allow-Origin'] = self._config.CORS_ALLOW_ACCESS_CONTROL_ORIGIN
         return response
