@@ -63,7 +63,8 @@ class PWebBismillah(object):
     def run(self):
         self._pweb_app.run(host=self._config.HOST, port=self._config.PORT, load_dotenv=False, debug=self._config.DEBUG)
 
-    def get_app(self):
+    def get_app(self, is_wsgi=True):
+        self._pweb_app._is_run_on_wsgi = is_wsgi
         return self._pweb_app
 
     def cli(self):
