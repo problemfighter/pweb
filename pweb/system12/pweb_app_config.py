@@ -27,9 +27,11 @@ class PWebAppConfig(YAMLConfigObj):
     APPLICATION_MODULE_REGISTRY: str = "application.config.module_registry.Register"
 
     # CORS
-    REST_URL_START_WITH = "/api"
-    ALLOW_CORS_ORIGINS: list = ["*"]
-    ALLOW_ACCESS_CONTROL_ORIGIN: str = "*"
+    CORS_REST_URL_START_WITH = "/api/*"
+    CORS_STATIC_URL_START_WITH = "/static/*"
+    CORS_ALLOW_ORIGINS: list = ["*"]
+    CORS_ALLOW_ACCESS_CONTROL_ORIGIN: str = "*"
+    CORS_CONFIG: dict = None
 
     # SaaS
     TENANT_RESOLVER: PWebSaaSTenantResolver = None
