@@ -33,9 +33,6 @@ class PWebAppConfig(YAMLConfigObj):
     CORS_ALLOW_ACCESS_CONTROL_ORIGIN: str = "*"
     CORS_CONFIG: dict = None
 
-    # SaaS
-    TENANT_RESOLVER: PWebSaaSTenantResolver = None
-
     def set_base_dir(self, path):
         if not self.BASE_DIR:
             self.BASE_DIR = path
