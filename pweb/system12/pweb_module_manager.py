@@ -1,4 +1,5 @@
 from typing import Optional
+from pweb.system12.pweb_app_hook import PWebAppHook
 from pweb.system12.pweb_base import PWebBase
 from pweb.system12.pweb_app_config import PWebAppConfig
 from pweb.system12.pweb_interfaces import PWebModuleRegister
@@ -11,11 +12,13 @@ class PWebModuleManager:
     _pweb_app: PWebBase
     _config: PWebAppConfig = None
     _pweb_orm = None
+    _hook: PWebAppHook = None
 
-    def init_app(self, pweb_app, config: PWebAppConfig, pweb_orm):
+    def init_app(self, pweb_app, config: PWebAppConfig, pweb_orm, hook):
         self._config = config
         self._pweb_app = pweb_app
         self._pweb_orm = pweb_orm
+        self._hook = hook
         self._register_modules()
 
     def run_module_cli_init(self, config, pweb_app):
@@ -31,6 +34,11 @@ class PWebModuleManager:
                     app_details = instance.app_details()
                     if app_details.systemName not in PWebRegistry.registerModules:
                         PWebRegistry.registerModules[app_details.systemName] = app_details
+
+    def _inform_to_component(self, component_register, config, pweb_app, hook):
+        if hasattr(component_register, "inform_first_to_component"):
+            kwargs = {"hook": hook}
+            component_register.inform_first_to_component(pweb_app, config, **kwargs)
 
     def _call_run_module_cli_init(self, list_of_module, config, pweb_app):
         with pweb_app.app_context():
@@ -66,6 +74,7 @@ class PWebModuleManager:
             for module in list_of_module:
                 if issubclass(module, PWebComponentRegister):
                     instance = module()
+                    self._inform_to_component(component_register=instance, config=self._config, pweb_app=self._pweb_app, hook=self._hook)
                     instance.register_controller(self._pweb_app)
                     instance.run_on_start(self._pweb_app, self._config)
 

@@ -37,3 +37,6 @@ class PWebComponentRegister(ABC):
     @abstractmethod
     def app_details(self) -> PWebModuleDetails:
         pass
+
+    def inform_first_to_component(self, pweb_app, config, **kwargs):
+        pass

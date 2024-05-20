@@ -10,6 +10,7 @@ from pweb.system12.pweb_module_cli import init_pweb_module_cli
 from pweb.system12.pweb_registry import PWebRegistry
 from pweb.system12.pweb_base import PWebBase
 from pweb.system12.pweb_app_config import PWebAppConfig
+from pweb.system12.pweb_app_hook import PWebAppHook
 from ppy_common import PyCommon
 from pweb.system12.pweb_module_manager import PWebModuleManager
 from pweb_form_rest import PWebFR
@@ -19,6 +20,7 @@ from pweb_orm import pweb_orm, PWebSaaS
 class PWebBismillah(object):
     _pweb_app: PWebBase
     _config: PWebAppConfig = None
+    _hook: PWebAppHook = None
     _application_config: PWebAppConfig = None
     _module_manager: PWebModuleManager = PWebModuleManager()
 
@@ -56,7 +58,7 @@ class PWebBismillah(object):
         self._copy_app_config_to_flask()
         self._init_orm()
         self._init_module_cli()
-        self._module_manager.init_app(self._pweb_app, self._application_config, pweb_orm)
+        self._module_manager.init_app(self._pweb_app, self._application_config, pweb_orm, hook=self._hook)
         self._init_form_rest_module()
         self._init_static_resource_mapping()
 
@@ -84,6 +86,7 @@ class PWebBismillah(object):
     def _init_config(self, root_path):
         self._merge_config(root_path)
         PWebRegistry.config = self._config
+        self._merge_hook()
 
     def _copy_app_config_to_flask(self):
         self._pweb_app.config.from_object(self._config)
@@ -108,6 +111,16 @@ class PWebBismillah(object):
             yaml_env.merge_config(confi_class)
         self._application_config = confi_class
 
+    def _merge_hook(self):
+        hook_class = PyCommon.import_from_string(self._config.APPLICATION_HOOK, True)
+        if hook_class:
+            hook_map = dir(hook_class)
+            for key in hook_map:
+                if key.isupper() and hasattr(self._hook, key):
+                    setattr(self._hook, key, getattr(hook_class, key))
+        else:
+            self._hook = PWebAppHook()
+
     def _init_cors(self):
         api_url = self._config.CORS_REST_URL_START_WITH
         static_url = self._config.CORS_STATIC_URL_START_WITH
@@ -123,10 +136,10 @@ class PWebBismillah(object):
         Console.enable_log = self._config.DEBUG
 
     def _init_module_cli(self):
-        init_pweb_module_cli(self._pweb_app, self._config)
+        init_pweb_module_cli(self._pweb_app, self._config, hook=self._hook)
 
     def _init_orm(self):
-        PWebSaaS.tenantResolver = self._config.TENANT_RESOLVER
+        PWebSaaS.tenantResolver = self._hook.TENANT_RESOLVER
         pweb_orm.init_app(self._pweb_app)
 
     def _init_form_rest_module(self):
