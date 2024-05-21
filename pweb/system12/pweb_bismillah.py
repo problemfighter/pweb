@@ -112,14 +112,13 @@ class PWebBismillah(object):
         self._application_config = confi_class
 
     def _merge_hook(self):
+        self._hook = PWebAppHook()
         hook_class = PyCommon.import_from_string(self._config.APPLICATION_HOOK, True)
         if hook_class:
             hook_map = dir(hook_class)
             for key in hook_map:
                 if key.isupper() and hasattr(self._hook, key):
                     setattr(self._hook, key, getattr(hook_class, key))
-        else:
-            self._hook = PWebAppHook()
 
     def _init_cors(self):
         api_url = self._config.CORS_REST_URL_START_WITH
