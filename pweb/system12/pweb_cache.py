@@ -1,18 +1,18 @@
 import functools
 import gc
-from datetime import timedelta, datetime
+import datetime
+from datetime import timedelta
 from functools import lru_cache, wraps
-
-CACHE_1_MINUTES = 60
-CACHE_30_MINUTES = CACHE_1_MINUTES * 30
-CACHE_1_HOUR = CACHE_1_MINUTES * 60
-CACHE_1_DAY = CACHE_1_HOUR * 24
-CACHE_1_MONTY = CACHE_1_DAY * 30
-CACHE_1_YEAR = CACHE_1_DAY * 364
 
 
 class PWebCache:
     enableCache: bool = True
+    time1Minute = 60
+    time30Minute = 60 * 30
+    time1Hour = 60 * 60
+    time1Day = 60 * 60 * 24
+    time1Month = 60 * 60 * 24 * 30
+    time1Year = 60 * 60 * 24 * 364
 
     @staticmethod
     def clean_all():
@@ -23,20 +23,23 @@ class PWebCache:
                 cache_object.cache_clear()
 
 
-def pweb_cache(seconds: int = CACHE_30_MINUTES, maxsize: int = 128):
+def pweb_cache(maxsize: int = 128, expire_seconds: int = None, typed=False):
     def wrapper_cache(func):
         if PWebCache.enableCache:
-            func = lru_cache(maxsize=maxsize)(func)
-        func.lifetime = timedelta(seconds=seconds)
-        func.expiration = datetime.utcnow() + func.lifetime
+            func = lru_cache(maxsize=maxsize, typed=typed)(func)
+
+        if expire_seconds:
+            func.lifetime = timedelta(seconds=expire_seconds)
+            func.expiration = datetime.datetime.now(datetime.UTC) + func.lifetime
 
         @wraps(func)
         def wrapped_func(*args, **kwargs):
-            if datetime.utcnow() >= func.expiration:
+            if func.expiration and datetime.datetime.now(datetime.UTC) >= func.expiration:
                 func.cache_clear()
-                func.expiration = datetime.utcnow() + func.lifetime
+                func.expiration = datetime.datetime.now(datetime.UTC) + func.lifetime
 
             return func(*args, **kwargs)
 
         return wrapped_func
+
     return wrapper_cache
