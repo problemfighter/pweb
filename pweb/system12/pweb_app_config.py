@@ -1,6 +1,5 @@
 import os
 from ppy_jsonyml import YAMLConfigObj
-from pweb_orm import PWebSaaSTenantResolver
 
 
 class PWebAppConfig(YAMLConfigObj):
