@@ -117,7 +117,7 @@ class PWebBismillah(object):
         if hook_class:
             hook_map = dir(hook_class)
             for key in hook_map:
-                if key.isupper() and hasattr(self._hook, key):
+                if key.isupper():
                     setattr(self._hook, key, getattr(hook_class, key))
 
     def _init_cors(self):
