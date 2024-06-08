@@ -101,12 +101,12 @@ class PWebBismillah(object):
                     setattr(self._config, key, getattr(confi_class, key))
 
         self._process_resource_path(root_path=root_path)
-        self._config = yaml_env.load(project_root_path=self._config.APP_CONFIG_PATH, config_obj=self._config)
+        self._config = yaml_env.load(project_root_path=self._config.APP_CONFIG_PATH, config_obj=self._config, set_all_attr=True)
 
         if confi_class:
             config_map = dir(self._config)
             for key in config_map:
-                if key.isupper() and hasattr(confi_class, key):
+                if key.isupper():
                     setattr(confi_class, key, getattr(self._config, key))
             yaml_env.merge_config(confi_class)
         self._application_config = confi_class
