@@ -51,6 +51,7 @@ class PWebBismillah(object):
             instance_relative_config=instance_relative_config,
             root_path=root_path,
         )
+        PWebRegistry.pweb_app = self._pweb_app
         self._config = config
         self._init_config(root_path=project_root_path)
         self._init_cors()
